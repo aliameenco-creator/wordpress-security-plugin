@@ -25,10 +25,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * The actions on wp-login.php that must stay reachable at the core address, because they are reached from a link in
  * an email or a form a visitor already has.
  *
+ * The "lost password" form is not one of them: it links to the sign-in page, so at the core address it would show
+ * the private address to anyone. It lives at the private address instead, which is where the sign-in page's own
+ * "Lost your password?" link goes.
+ *
  * @return string[]
  */
 function wpsp_public_login_actions() {
-	return array( 'postpass', 'logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction' );
+	return array( 'postpass', 'logout', 'rp', 'resetpass', 'confirmaction' );
 }
 
 /**
@@ -147,6 +151,10 @@ function wpsp_guard_login() {
 		return;
 	}
 
+	// WordPress sends the short addresses /login, /admin and /dashboard on to the sign-in page. With a private
+	// address that would hand the address to anyone who types /login, so those now get the theme's ordinary 404.
+	remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
+
 	$path = wpsp_request_path();
 	$slug = wpsp_login_slug();
 
@@ -250,7 +258,43 @@ function wpsp_filter_login_url( $url ) {
 add_filter( 'login_url', 'wpsp_filter_login_url', 20 );
 add_filter( 'lostpassword_url', 'wpsp_filter_login_url', 20 );
 add_filter( 'register_url', 'wpsp_filter_login_url', 20 );
-add_filter( 'wp_redirect', 'wpsp_filter_login_url', 20 );
+
+/**
+ * Redirects to the sign-in page go to the private address, except from a request that came in at the core address.
+ *
+ * Someone who opens /wp-login.php?action=resetpass with no valid key is sent on to the sign-in screen by WordPress.
+ * Rewriting that redirect would hand the private address to whoever asked, so the request answers 404 instead.
+ *
+ * @param string $location Redirect target.
+ * @return string
+ */
+function wpsp_filter_login_redirect( $location ) {
+	$rewritten = wpsp_filter_login_url( $location );
+
+	if ( $rewritten !== $location && 'wp-login.php' === wpsp_request_path() ) {
+		wpsp_login_not_found();
+	}
+
+	return $rewritten;
+}
+add_filter( 'wp_redirect', 'wpsp_filter_login_redirect', 20 );
+
+/**
+ * After signing out, WordPress shows the sign-in page. Signing out through the core address would then reveal the
+ * private one, so the default destination becomes the home page.
+ *
+ * @param string $redirect_to           Where WordPress will send the browser.
+ * @param string $requested_redirect_to The destination asked for in the link, if any.
+ * @return string
+ */
+function wpsp_logout_redirect( $redirect_to, $requested_redirect_to ) {
+	if ( wpsp_login_hidden() && '' === (string) $requested_redirect_to ) {
+		return home_url( '/' );
+	}
+
+	return $redirect_to;
+}
+add_filter( 'logout_redirect', 'wpsp_logout_redirect', 20, 2 );
 
 /**
  * The site_url() calls that build the login form's own action attribute.

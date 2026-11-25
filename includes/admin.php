@@ -232,6 +232,9 @@ function wpsp_handle_admin_post( $tab ) {
 			} elseif ( ! empty( $post['stop_reporting'] ) ) {
 				wpsp_save_settings( array( 'report_enabled' => false, 'report_key' => '' ) );
 				$notices[] = array( 'type' => 'info', 'text' => esc_html__( 'Reporting is off and the key has been removed.', 'wordpress-security-plugin' ) );
+			} elseif ( ! empty( $post['save_scan'] ) ) {
+				wpsp_save_settings( array( 'nightly_scan' => $flag( 'nightly_scan' ) ) );
+				$notices[] = array( 'type' => 'success', 'text' => esc_html__( 'Saved.', 'wordpress-security-plugin' ) );
 			} elseif ( ! empty( $post['run_scan'] ) ) {
 				wpsp_run_scan();
 				$notices[] = array( 'type' => 'success', 'text' => esc_html__( 'The check has run. The results are on the overview.', 'wordpress-security-plugin' ) );
@@ -660,6 +663,16 @@ function wpsp_tab_reporting() {
 			<?php esc_html_e( 'Replacing the key stops the old one working straight away, so the tracker needs the new one pasted in. You can also read the report yourself right now, signed in as an administrator:', 'wordpress-security-plugin' ); ?>
 			<a href="<?php echo esc_url( $endpoint ); ?>" target="_blank" rel="noreferrer"><?php esc_html_e( 'open the report', 'wordpress-security-plugin' ); ?></a>.
 		</p>
+	</form>
+
+	<form method="post">
+		<?php wp_nonce_field( 'wpsp_save_reporting' ); ?>
+		<input type="hidden" name="wpsp_tab" value="reporting">
+		<h2><?php esc_html_e( 'The nightly check', 'wordpress-security-plugin' ); ?></h2>
+		<table class="form-table" role="presentation">
+			<?php wpsp_checkbox( 'nightly_scan', __( 'Run the check every night', 'wordpress-security-plugin' ), __( 'A little after 3am the plugin compares the WordPress files with the official copies, looks for program code in the uploads folder, and lists what needs updating. Off, the button above still runs it whenever you ask.', 'wordpress-security-plugin' ) ); ?>
+		</table>
+		<p><button type="submit" name="save_scan" value="1" class="button button-primary"><?php esc_html_e( 'Save', 'wordpress-security-plugin' ); ?></button></p>
 	</form>
 	<?php
 }

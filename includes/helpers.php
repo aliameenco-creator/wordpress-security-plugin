@@ -15,8 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * The defaults a fresh install starts with.
  *
- * Anything that could lock an administrator out, change what visitors see, or hide the login before the address has
- * been written down starts switched off.
+ * Every feature starts switched off. An administrator turns each one on from the settings screen, one at a time,
+ * so a site only ever changes when somebody chooses to change it. The only exceptions are the sign-in attempt limit
+ * and the vague sign-in error, which belong to the private sign-in address and do nothing until it is set.
+ *
+ * The rule for later versions: a new setting must be added here with a default that leaves the site exactly as it
+ * was (usually false). Stored settings are merged over these defaults, so a site that updates the plugin picks up
+ * the new key switched off and nothing changes until an administrator opts in.
  *
  * @return array<string, mixed>
  */
@@ -27,27 +32,27 @@ function wpsp_default_settings() {
 		'login_max_attempts'  => 5,
 		'login_lockout'       => 900,
 		'login_alert_email'   => '',
-		'block_enumeration'   => true,
+		'block_enumeration'   => false,
 
 		// Two-step login.
 		'twofactor_enabled'   => false,
 		'twofactor_required'  => true,
 
 		// Hardening.
-		'security_headers'    => true,
+		'security_headers'    => false,
 		'hsts'                => false,
-		'disable_xmlrpc'      => true,
-		'disable_file_edit'   => true,
-		'hide_wp_version'     => true,
-		'limit_app_passwords' => true,
-		'block_sensitive'     => true,
+		'disable_xmlrpc'      => false,
+		'disable_file_edit'   => false,
+		'hide_wp_version'     => false,
+		'limit_app_passwords' => false,
+		'block_sensitive'     => false,
 
 		// Bots and scraping.
-		'bots_enabled'        => true,
-		'block_ai_crawlers'   => true,
-		'block_bad_agents'    => true,
-		'honeypot'            => true,
-		'rate_limit'          => true,
+		'bots_enabled'        => false,
+		'block_ai_crawlers'   => false,
+		'block_bad_agents'    => false,
+		'honeypot'            => false,
+		'rate_limit'          => false,
 		'rate_limit_hits'     => 120,
 		'behind_cloudflare'   => false,
 
@@ -58,9 +63,10 @@ function wpsp_default_settings() {
 		'maintenance_message' => '',
 
 		// Counters and reporting.
-		'count_visits'        => true,
+		'count_visits'        => false,
 		'report_enabled'      => false,
 		'report_key'          => '',
+		'nightly_scan'        => false,
 		'log_retention_days'  => 90,
 	);
 }

@@ -3,7 +3,7 @@
  * Plugin Name:       WordPress Security Plugin
  * Plugin URI:        https://github.com/aliameenco-creator/wordpress-security-plugin
  * Description:       Security, bot protection, maintenance mode and daily reporting for WordPress sites. One plugin, one report format, nothing heavy on the front end.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Author:            aliameenco-creator
@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WPSP_VERSION', '0.2.0' );
+define( 'WPSP_VERSION', '0.3.0' );
 define( 'WPSP_FILE', __FILE__ );
 define( 'WPSP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WPSP_URL', plugin_dir_url( __FILE__ ) );
@@ -62,8 +62,8 @@ function wpsp_activate() {
 
 	$settings = get_option( 'wpsp_settings' );
 	if ( ! is_array( $settings ) ) {
-		// A fresh install starts with the measures that cannot lock anyone out or change how the site looks. The
-		// private sign-in address and maintenance mode are deliberately left off until an administrator sets them.
+		// A fresh install starts with every feature off. Nothing changes on the site until an administrator sets
+		// the private sign-in address or switches a feature on.
 		add_option( 'wpsp_settings', wpsp_default_settings(), '', true );
 	}
 

@@ -3,7 +3,7 @@ Contributors: aliameenco-creator
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,8 @@ A private sign-in address, two-step sign-in with an authenticator app, attempt l
 site should have, a four-layer bot and AI-crawler defence, a maintenance holding page with a numeric access code,
 a nightly integrity and vulnerability check, and one signed read-only report per site for your own tracker.
 
-Built to stay light: nothing heavy runs while a visitor is looking at a page, and every feature has an off switch.
+Built to stay light: nothing heavy runs while a visitor is looking at a page. Every feature starts switched off and
+is turned on by an administrator, one at a time.
 
 Full documentation is in README.md, docs/cloudflare-setup.md and docs/report-format.md in the plugin folder.
 
@@ -29,6 +30,24 @@ Any of these lines in wp-config.php, added through the host file manager:
 * define( 'WPSP_MAINTENANCE_OFF', true );        - the holding page off
 
 == Changelog ==
+
+= 0.3.0 =
+* Every feature now starts switched off, so installing the plugin changes nothing until an administrator turns a
+  feature on. Start with the private sign-in address, then add the rest one at a time.
+* The nightly check has its own switch, off by default. With it off, the nightly job only tidies the log and
+  contacts nobody. "Run the nightly check now" still works at any time.
+* Updates are manual only: the plugin never updates itself, even with WordPress automatic updates switched on.
+  Upload the new ZIP or use the update link when you choose to.
+* Fixed: typing /login, /admin or /dashboard no longer forwards to the private sign-in address. Those now answer
+  "page not found".
+* Fixed: the "lost password" form at /wp-login.php showed a link to the private address. It now lives only at the
+  private address, and anything arriving at /wp-login.php that would be sent on to it answers "page not found".
+  Password reset links in emails keep working.
+* Signing out now goes to the home page, so the sign-in address is never shown after signing out.
+* Rule for later versions: each new feature ships switched off.
+
+= 0.2.0 =
+* Renamed to WordPress Security Plugin and published from a public repository. Updates need no token.
 
 = 0.1.1 =
 * Fixed the Updates submenu linking to a page that did not exist. It was registered before its parent menu, so

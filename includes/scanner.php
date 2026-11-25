@@ -24,6 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function wpsp_schedule_jobs() {
+	// The job also tidies the log, so it runs every night; the expensive checks inside it only run when the
+	// nightly check is switched on. See wpsp_nightly_job().
 	if ( ! wp_next_scheduled( 'wpsp_nightly' ) ) {
 		// A little after 3am in the site's own timezone, when nobody is looking at the site.
 		$offset = (int) ( (float) get_option( 'gmt_offset', 0 ) * HOUR_IN_SECONDS );
@@ -101,7 +103,22 @@ function wpsp_run_scan() {
 
 	return $result;
 }
-add_action( 'wpsp_nightly', 'wpsp_run_scan' );
+
+/**
+ * What WP-Cron runs each night: the full check when it is switched on, otherwise only the log tidy-up, which is a
+ * single delete query and contacts nobody.
+ *
+ * @return void
+ */
+function wpsp_nightly_job() {
+	if ( wpsp_on( 'nightly_scan' ) ) {
+		wpsp_run_scan();
+		return;
+	}
+
+	wpsp_prune_events();
+}
+add_action( 'wpsp_nightly', 'wpsp_nightly_job' );
 
 /**
  * The last stored result.

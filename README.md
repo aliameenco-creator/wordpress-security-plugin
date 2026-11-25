@@ -9,7 +9,9 @@ It does four things:
 3. **Maintenance mode** with a numeric access code, for sites being built or redesigned.
 4. **Sends one daily report** to your own tracker, in the same format from every site.
 
-Written to be light. Nothing heavy runs while a visitor is looking at a page; the expensive work happens once a night. Every feature has an off switch.
+Written to be light. Nothing heavy runs while a visitor is looking at a page; the expensive work happens once a night, and only if you switch it on.
+
+**Everything starts switched off.** Installing the plugin changes nothing on the site. You switch features on one at a time, starting with the private sign-in address, and add more when you are ready.
 
 ---
 
@@ -130,17 +132,34 @@ Three external addresses are ever contacted, all official, all read-only: `api.w
 
 ## Installing
 
-1. Upload the plugin and activate it. **Nothing visible changes yet**: the private sign-in address, two-step login and maintenance mode all start switched off, deliberately.
-2. **WordPress Security Plugin → Sign-in.** Set the private address. Write it down. Then switch on two-step sign-in and set it up on your own profile before anyone else's.
-3. **WordPress Security Plugin → Bots and scraping.** Defaults are sensible. Only tick "behind Cloudflare" once the domain really is.
-4. **WordPress Security Plugin → Daily report.** Make the key and paste it into the tracker.
-5. Optional: **Maintenance mode**, while a rebuild is in progress.
+1. Upload the plugin and activate it. **Nothing changes yet**: every feature starts switched off.
+2. **WordPress Security Plugin → Sign-in.** Set the private address and write it down. Sign out and back in at the new address in a private window before you close the admin. This is the only step needed to start.
+3. Later, one at a time, and checking the site after each:
+   - **Sign-in → The settings every site should have.** Hardening.
+   - **Sign-in → Hide the list of usernames.**
+   - **Bots and scraping.** Only tick "behind Cloudflare" once the domain really is.
+   - **Sign-in → Two-step sign-in.** Set it up on your own profile before anyone else's.
+   - **Daily report.** The nightly check, then the key for the tracker.
+4. Optional: **Maintenance mode**, while a rebuild is in progress.
 
 If a theme or another plugin already moves the sign-in page, run one or the other, never both. A theme can tell this plugin to step aside with `add_filter( 'wpsp_login_handled_elsewhere', '__return_true' );` — the sign-in page is then left alone, everything else still works, and the admin says so.
 
 ## Updating
 
-Releases come from the public `aliameenco-creator/wordpress-security-plugin` repository, through WordPress's normal Plugins → Updates screen or the plugin's own Updates page. No token or account is needed. Every package is verified against the size and SHA-256 GitHub published, and the ZIP is inspected, before a single file is installed.
+**Updates are manual only.** The plugin never updates itself, even when WordPress automatic updates are switched on for plugins; the Plugins screen says "Updated by hand only" in place of the auto-update link.
+
+WordPress still shows when a new release exists. Install it either by uploading the new ZIP (Plugins → Add New → Upload, then "Replace current with uploaded"), or with the update link on Plugins → Updates or the plugin's own Updates page. Releases come from the public `aliameenco-creator/wordpress-security-plugin` repository; no token or account is needed. Every package is verified against the size and SHA-256 GitHub published, and the ZIP is inspected, before a single file is installed.
+
+Settings are kept across updates.
+
+## Adding features later
+
+The plugin grows one feature at a time, and an update must never change a site by itself. So every release keeps to these rules:
+
+1. A new feature gets its own setting in `wpsp_default_settings()` (`includes/helpers.php`), defaulting to **off** (or to whatever leaves the site exactly as it was).
+2. Stored settings are merged over the defaults, so a site that updates picks up the new setting switched off. Nothing happens until an administrator ticks it.
+3. An existing setting's default is never changed in a way that would switch something on for sites that already have the plugin.
+4. A new feature has its plain-words explanation next to its switch, and a line in the changelog.
 
 ## Development
 

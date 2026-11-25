@@ -5,6 +5,10 @@
  * One release updates the plugin on every site from inside WordPress. The repository is public, so no token or
  * other credential is needed, stored or sent.
  *
+ * Updates are always manual. WordPress shows that a new version exists, and an administrator decides when to
+ * install it, either with the update link or by uploading the ZIP. The plugin never updates itself, even if
+ * automatic updates are switched on for plugins in general.
+ *
  * Every package is checked before a single file is installed: the release must be a numbered stable release, the
  * download must match the size and SHA-256 digest GitHub published, and the ZIP must contain only paths inside
  * wordpress-security-plugin/ with no symbolic links and the version the release claims.
@@ -305,6 +309,39 @@ function wpsp_release_download( $reply, $package, $upgrader, $hook_extra = array
 	return $file;
 }
 add_filter( 'upgrader_pre_download', 'wpsp_release_download', 10, 4 );
+
+/**
+ * Never lets WordPress install an update of this plugin on its own.
+ *
+ * @param bool|null $update Whether to update automatically.
+ * @param object    $item   The plugin being considered.
+ * @return bool|null
+ */
+function wpsp_no_auto_update( $update, $item ) {
+	if ( isset( $item->plugin ) && WPSP_SLUG === $item->plugin ) {
+		return false;
+	}
+
+	return $update;
+}
+add_filter( 'auto_update_plugin', 'wpsp_no_auto_update', 99, 2 );
+
+/**
+ * Replaces the "Enable auto-updates" link on the Plugins screen with a plain note, so nobody switches on something
+ * that would not happen anyway.
+ *
+ * @param string $html        The link WordPress would show.
+ * @param string $plugin_file The plugin on this row.
+ * @return string
+ */
+function wpsp_auto_update_note( $html, $plugin_file ) {
+	if ( WPSP_SLUG !== $plugin_file ) {
+		return $html;
+	}
+
+	return esc_html__( 'Updated by hand only', 'wordpress-security-plugin' );
+}
+add_filter( 'plugin_auto_update_setting_html', 'wpsp_auto_update_note', 10, 2 );
 
 add_action(
 	'upgrader_process_complete',

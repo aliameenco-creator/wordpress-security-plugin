@@ -41,7 +41,7 @@ Sign up at cloudflare.com. One account holds every website.
 
 ## 3. Check the copied records — the step that matters
 
-Compare Cloudflare's list against Hostinger (hPanel → Domains → DNS Zone).
+Compare Cloudflare's list against the DNS zone at your current host or registrar.
 
 | Record | Must be there | Cloud colour |
 |---|---|---|

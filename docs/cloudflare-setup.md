@@ -98,9 +98,9 @@ This stops password guessing before it ever reaches WordPress.
 
 Caching → **Cache Rules**, and bypass the cache for paths like `/checkout`, `/cart`, `/my-account`. WooCommerce sites need this; a plain brochure site does not.
 
-## 6. Hostinger side
+## 6. The host side
 
-- hPanel → if **Hostinger CDN** is on for this site, **turn it off**. Two content networks stacked on each other cause strange, hard-to-trace problems.
+- If the host has its own **CDN** switched on for this site, **turn it off**. Two content networks stacked on each other cause strange, hard-to-trace problems.
 - Leave LiteSpeed Cache alone. It works alongside Cloudflare.
 
 ## 7. WordPress side
